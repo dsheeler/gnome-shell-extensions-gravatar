@@ -1,36 +1,31 @@
 'use strict';
 
-const { lang } = imports;
-const {
-  AccountsService,
-  Gio,
-  GLib,
-  Soup,
-} = imports.gi;
-const { extensionUtils } = imports.misc;
+import Gio from 'gi://Gio'
+import AccountsService from 'gi://AccountsService'
+import GLib from 'gi://GLib'
+import St from 'gi://St'
+import Soup from 'gi://Soup'
 
-const me = extensionUtils.getCurrentExtension();
-const { convenience } = me.imports.lib;
-const { md5 } = me.imports.lib.md5;
-const { log, debug } = me.imports.utils.logger;
-const { setInterval, clearInterval } = me.imports.utils.timing;
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
+import { md5 } from './lib/md5.js'
+import { my_log, debug } from './utils/logger.js'
+import { setInterval, clearInterval } from './utils/timing.js'
 
-const Extension = new lang.Class({
-  Name: 'Gravatar.Extension',
+export default class GravatarExtension extends Extension {
+  constructor(metadata) {
 
-  /*
-   ***********************************************
-   * Constructor                                 *
-   ***********************************************
-   */
-  _init() {
     debug('initializing');
-    this._settings = convenience.getSettings();
+    
+    super(metadata);
+    this._settings = this.getSettings();
     this._tmpDir = '/tmp';
     this._username = GLib.get_user_name();
     this._user = AccountsService.UserManager.get_default().get_user(this._username);
-  },
+    this._notifSource = null;
+  }
 
   /*
    ***********************************************
@@ -43,7 +38,7 @@ const Extension = new lang.Class({
       this._changedId = this._settings.connect('changed', this._loadIcon.bind(this));
       this._loadIcon();
     });
-  },
+  }
 
   disable() {
     debug('disabling');
@@ -61,7 +56,7 @@ const Extension = new lang.Class({
       this._httpSession.abort();
       this._httpSession = null;
     }
-  },
+  }
 
   /*
    ***********************************************
@@ -88,31 +83,31 @@ const Extension = new lang.Class({
       if (loopCount >= 30) {
         clearInterval(this._userLoop);
         this._userLoop = null;
-        log('Timeout waiting for user to initialize');
+        my_log('Timeout waiting for user to initialize');
       }
       return null;
     }, 1000);
-  },
+  }
 
   /* Settings */
   _getIconSize() {
     return this._settings.get_int('icon-size');
-  },
+  }
 
   _getHash() {
     const email = this._settings.get_string('email').toLowerCase();
     debug(`Hashing "${email}"`);
     return md5(email);
-  },
+  }
 
   /* Set Icon */
   _setIcon(icon) {
-    log(`Setting icon for "${this._username}" to "${icon}"`);
     this._user.set_icon_file(icon);
-  },
+  }
 
   /* Download From Gravatar */
   _loadIcon() {
+    const email = this._settings.get_string('email').toLowerCase();
     const hash = this._getHash();
     if (hash === null) {
       return;
@@ -121,7 +116,7 @@ const Extension = new lang.Class({
       const url = `http://www.gravatar.com/avatar/${hash}?s=${this._getIconSize()}&d=mm`;
       const request = Soup.Message.new('GET', url);
       const icon = Gio.file_new_for_path(`${this._tmpDir}/${Date.now()}_${hash}`);
-      log(`Downloading gravatar icon from ${url}`);
+      my_log(`Downloading gravatar icon from ${url}`);
       debug(`Saving to ${icon.get_path()}`);
 
       // initialize session
@@ -132,33 +127,55 @@ const Extension = new lang.Class({
       this._httpSession.abort();
 
       const fstream = icon.replace(null, false, Gio.FileCreateFlags.NONE, null);
-      request.connect('got_chunk', (msg, chunk) => {
-        fstream.write(chunk.get_data(), null);
-      });
-
-      // download file
-      this._httpSession.queue_message(request, (httpSession, msg) => {
-        fstream.close(null);
-        switch (msg.status_code) {
-          case 200:
-            log('Download successful');
+      
+      this._httpSession.send_and_splice_async(
+        request, 
+        fstream, 
+        Gio.OutputStreamSpliceFlags.CLOSE_TARGET,
+        0,
+        null,
+        (object, result, data) => {
+          if (object.send_and_splice_finish(result) > -1) {
             this._setIcon(icon.get_path());
-            break;
-          default:
-            log(`Failed to download ${url}`);
-        }
-        debug(`Deleting ${icon.get_path()}`);
-        icon.delete(null);
-      });
+            let file_icon = Gio.FileIcon.new(icon);
+            this._showNotification('Gravatar Extension', `Installed Icon for ${email}`, file_icon);
+            //Main.osdWindowManager.show(-1, file_icon, `Installed Gravatar Icon for '${email}'`);
+          } else {
+            let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error-symbolic');
+            Main.osdWindowManager.show(-1, error_icon, `Failed to Download Gravatar Icon for '${email}'`);
+            my_log(`Failed to download ${url}`);
+          }
+          debug(`Deleting ${icon.get_path()}`);
+          icon.delete(null);
+        });
     } catch (e) {
-      log(e.message);
+      my_log(e.message);
     }
-  },
+  }
 
-});
-
-
-/* exported init */
-function init() {
-  return new Extension();
+	_showNotification(title, message, gicon) {
+		if (this._notifSource == null) {
+			// We have to prepare this only once
+			this._notifSource = new MessageTray.SystemNotificationSource();
+			this._notifSource.createIcon = function() {
+				return new St.Icon({ gicon: gicon });
+			};
+			// Take care of not leaving unneeded sources
+			this._notifSource.connect('destroy', ()=>{this._notifSource = null;});
+			Main.messageTray.add(this._notifSource);
+		}
+		let notification = null;
+		// We do not want to have multiple notifications stacked
+		// instead we will update previous
+		if (this._notifSource.notifications.length == 0) {
+			notification = new MessageTray.Notification(this._notifSource, title, message);
+			//notification.addAction( _('Update now') , ()=>{this._updateNow();} );
+		} else {
+			notification = this._notifSource.notifications[0];
+			notification.update( title, message, { clear: true });
+		}
+		notification.setTransient(false);
+		this._notifSource.showNotification(notification);
+	}
 }
+ 

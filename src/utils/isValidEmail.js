@@ -1,9 +1,8 @@
 'use strict';
 
-const { GLib } = imports.gi;
-
+import GLib from 'gi://GLib';
 /* exported isValidEmail */
-function isValidEmail(email) {
+export function isValidEmail(email) {
   return GLib.Regex.match_simple(
     '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}$',
     email,

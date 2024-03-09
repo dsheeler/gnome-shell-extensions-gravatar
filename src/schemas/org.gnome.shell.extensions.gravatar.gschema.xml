@@ -11,10 +11,20 @@
       <summary>Email</summary>
       <description>Your Gravatar email address.</description>
     </key>
+    <key name="gravatar-ondemand-keybinding" type="s">
+      <default>""</default>
+      <summary>Keyboard Shortcut</summary>
+      <description>Keyboard Shortcut Keybinding</description>
+    </key>
     <key name="icon-size" type="i">
       <default>192</default>
       <summary>Icon Size</summary>
       <description>Size of icon to download from Gravatar.</description>
+    </key>
+    <key name="refresh-toggle" type="b">
+      <default>false</default>
+      <summary>Toggle to Refresh Icon</summary>
+      <description>Changing this value will trigger downloading the icon from Gravatar.</description>
     </key>
   </schema>
 </schemalist>
