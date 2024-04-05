@@ -76,7 +76,7 @@ export default class GravatarExtension extends Extension {
    */
 
   addKeybinding() {
-    gr_debug("adding keybinding");
+    gr_debug(this.settings, "adding keybinding");
     this.previousKeybinding = this.settings.get_strv("gravatar-ondemand-keybinding")[0];
     if (!this.previousKeybinding) {
       return;
@@ -87,7 +87,7 @@ export default class GravatarExtension extends Extension {
       Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
       Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
       () => {
-        gr_debug("ondemand keybinding pressed; loading icon");
+        gr_debug(this.settings, "ondemand keybinding pressed; loading icon");
         this.loadIcon({
           use_osd: true
         });
@@ -96,7 +96,7 @@ export default class GravatarExtension extends Extension {
   }
 
   removeKeybinding() {
-    gr_debug(`remove keybinding ${this.previousKeybinding}`);
+    gr_debug(this.settings, `remove keybinding ${this.previousKeybinding}`);
     if (this.previousKeybinding) {
       Main.wm.removeKeybinding('gravatar-ondemand-keybinding');
     }
@@ -155,7 +155,7 @@ export default class GravatarExtension extends Extension {
       const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=mm`;
       const request = Soup.Message.new('GET', url);
       const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
-      gr_debug(`Downloading gravatar icon from ${url}`);
+      gr_debug(this.settings, `Downloading gravatar icon from ${url}`);
       gr_debug(this.settings, `Saving to ${icon.get_path()}`);
 
       // initialize session
