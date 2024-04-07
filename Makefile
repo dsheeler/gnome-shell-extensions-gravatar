@@ -66,7 +66,6 @@ mergepo: $(POT_FILE)
 	done;
 
 install: build
-	pwd
 	gnome-extensions install -f ./build/${UUID}.shell-extension.zip
 
 uninstall:
