@@ -46,6 +46,7 @@ build:
 	cd src && gnome-extensions pack -f \
 		--extra-source ./utils \
 		--extra-source ../lib \
+		--extra-source ../ui \
 		--extra-source ../metadata.json \
 		--extra-source ./shortcutButton.js \
 		--schema ./schemas/org.gnome.shell.extensions.gravatar.gschema.xml \

@@ -2,15 +2,29 @@
 
 import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
+import GLib from 'gi://GLib';
+import Gdk from 'gi://Gdk';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'
 import {OnDemandShortcutButton} from './shortcutButton.js'
+import {gr_log} from './utils/logger.js'
 
 export default class GravatarPreferences extends ExtensionPreferences {
+  constructor(metadata) {
+    super(metadata);
+
+    let IconsPath = GLib.build_filenamev([this.path, 'ui', 'icons']);
+    let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+    iconTheme.add_search_path(IconsPath);
+  }
+
+  getVersionString(_page) {
+    return _('Version %d').format(this.metadata.version);
+  }
   fillPreferencesWindow(window) {
     this.settings = this.getSettings();
     this.aboutWindow = null;
-    window.set_default_size(960, 420);
+    //window.set_default_size(960, 420);
     this.page = new Adw.PreferencesPage({
       title: "Gravatar",
     })
@@ -71,16 +85,17 @@ export default class GravatarPreferences extends ExtensionPreferences {
     this.aboutActionRow.add_suffix(this.aboutButton);
     this.aboutActionRow.set_activatable_widget(this.aboutButton);
     this.aboutButton.connect("clicked", (button) => {
-      let aboutWindow =  new Adw.AboutWindow({
+      this.aboutWindow =  new Adw.AboutWindow({
         website: 'https://github.com/dsheeler/gnome-shell-extensions-gravatar',
         application_name: "Gravatar",
-        developer_name: "Daniel Sheeler (dsheeler )",
-        version: this.metadata.version.toString(),
+        developer_name: "Daniel Sheeler (dsheeler)",
+        version: this.getVersionString(),
         license: 'The MIT License (MIT)',
         copyright: 'Copyright (C) 2024 Daniel Sheeler',
-        issue_url: 'https://github.com/dsheeler/gnome-shell-extensions-gravatar/issues'
+        issue_url: 'https://github.com/dsheeler/gnome-shell-extensions-gravatar/issues',
+        application_icon: 'gravatar-symbolic',
       });
-      aboutWindow.show();
+      this.aboutWindow.show();
     });
   }
 }

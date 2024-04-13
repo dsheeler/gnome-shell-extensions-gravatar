@@ -48,6 +48,7 @@ export default class GravatarExtension extends Extension {
 
   disable() {
     gr_debug(this.settings, 'disabling');
+    this.removeKeybinding();
     if (this.emailChangedId) {
       this.settings.disconnect(this.emailChangedId);
       this.emailChangedId = null;
@@ -181,7 +182,7 @@ export default class GravatarExtension extends Extension {
           } else {
             let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error-symbolic');
             if (use_osd) Main.osdWindowManager.show(-1, error_icon, `Failed to Download Gravatar Icon for '${email}'`);
-            else this.showNotification('Gravatar Extension', `Failed to download ${url}`);
+            else this.showNotification('Gravatar Extension', `Failed to download ${url}`, error_icon);
             gr_log(`Failed to download ${url}`);
           }
           gr_debug(this.settings, `Deleting ${icon.get_path()}`);
@@ -199,23 +200,30 @@ export default class GravatarExtension extends Extension {
       
       // Take care of not leaving unneeded sources
       this.notifSource.connect('destroy', ()=>{this.notifSource = null;});
-      Main.messageTray.add(this.notifSource);
     }
     this.notifSource.createIcon = function() {
       return new St.Icon({ gicon: gicon });
     };
+
     let notification = null;
     // We do not want to have multiple notifications stacked
     // instead we will update previous
     if (this.notifSource.notifications.length == 0) {
-      notification = new MessageTray.Notification(this.notifSource, title, message);
-      //notification.addAction( _('Update now') , ()=>{this.updateNow();} );
+      notification = new MessageTray.Notification({
+        source: this.notifSource, 
+        title: title, 
+        body: message,
+        gicon: gicon
+      });
     } else {
       notification = this.notifSource.notifications[0];
-      notification.update( title, message, { clear: true });
+      notification.title = title;
+      notification.body =  message;
+      notification.clear = true;
+      notification.gicon = gicon;
     }
-    notification.setTransient(true);
-    this.notifSource.showNotification(notification);
+    notification.isTransient = true;
+    this.notifSource.addNotification(notification);
   }
 }
  
