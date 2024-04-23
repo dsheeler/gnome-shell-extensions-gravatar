@@ -10,7 +10,7 @@ import Shell from 'gi://Shell';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
-import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import { md5 } from './lib/md5.js'
 import { gr_log, gr_debug } from './utils/logger.js'
