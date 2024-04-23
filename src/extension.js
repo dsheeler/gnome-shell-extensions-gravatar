@@ -173,8 +173,8 @@ export default class GravatarExtension extends Extension {
         Gio.OutputStreamSpliceFlags.CLOSE_TARGET,
         0,
         null,
-        (object, result, data) => {
-          if (object.send_and_splice_finish(result) > -1) {
+        (session, result, data) => {
+          if (session.send_and_splice_finish(result) > -1) {
             this.setIcon(icon.get_path());
             let file_icon = Gio.FileIcon.new(icon);
             if (use_osd) Main.osdWindowManager.show(-1, file_icon, `Installed Gravatar Icon for '${email}'`);
