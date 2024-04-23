@@ -5,97 +5,154 @@ import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import Gdk from 'gi://Gdk';
 
-import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'
-import {OnDemandShortcutButton} from './shortcutButton.js'
-import {gr_log} from './utils/logger.js'
+import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'
+import { OnDemandShortcutButton } from './shortcutButton.js'
 
 export default class GravatarPreferences extends ExtensionPreferences {
   constructor(metadata) {
     super(metadata);
-
-    let IconsPath = GLib.build_filenamev([this.path, 'ui', 'icons']);
-    let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-    iconTheme.add_search_path(IconsPath);
   }
 
   getVersionString(_page) {
     return _('Version %d').format(this.metadata.version);
   }
+
   fillPreferencesWindow(window) {
-    this.settings = this.getSettings();
-    this.aboutWindow = null;
-    //window.set_default_size(960, 420);
-    this.page = new Adw.PreferencesPage({
-      title: "Gravatar",
+    let IconsPath = GLib.build_filenamev([this.path, 'ui', 'icons']);
+    let iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+    iconTheme.add_search_path(IconsPath);
+
+    window.settings = this.getSettings();
+
+    let page = new Adw.PreferencesPage({
+      title: "Settings",
+      icon_name: "general-symbolic",
     })
-    window.add(this.page);
+    window.add(page);
 
-		this.prefGroup = new Adw.PreferencesGroup({
-			title: _("Settings"),
-		});
-    this.page.add(this.prefGroup);
+    let prefGroup = new Adw.PreferencesGroup({
+      title: _("General"),
+    });
+    page.add(prefGroup);
 
-    this.emailEntryRow = new Adw.EntryRow({
+    let emailEntryRow = new Adw.EntryRow({
       title: "Gravatar Email Address",
       show_apply_button: true, 
-      text: this.settings.get_string('email'),
+      text: window.settings.get_string('email'),
     });
-    this.prefGroup.add(this.emailEntryRow);
+    prefGroup.add(emailEntryRow);
     
-    this.emailEntryRow.connect("apply", () => {
-      this.settings.set_string('email', this.emailEntryRow.get_text());
+    emailEntryRow.connect("apply", () => {
+      window.settings.set_string('email', emailEntryRow.get_text());
     });
 
-    this.shortcutButton = new OnDemandShortcutButton(this.settings, {
+    let shortcutButton = new OnDemandShortcutButton(window.settings, {
       hhomogeneous: false,
     });
-    this.settings.connect("changed::gravatar-ondemand-keybinding", () => {
-      this.shortcutButton.keybinding = this.settings.get_strv("gravatar-ondemand-keybinding")[0];
+    window.settings.connect("changed::gravatar-ondemand-keybinding", () => {
+      shortcutButton.keybinding = window.settings.get_strv("gravatar-ondemand-keybinding")[0];
     });
-    this.shortcutButton.keybinding = this.settings.get_strv("gravatar-ondemand-keybinding")[0];
+    shortcutButton.keybinding = window.settings.get_strv("gravatar-ondemand-keybinding")[0];
 
-    this.shortcutButton.connect("notify::keybinding", () => {
-      this.settings.set_strv("gravatar-ondemand-keybinding", [this.shortcutButton.keybinding]);
+    shortcutButton.connect("notify::keybinding", () => {
+      window.settings.set_strv("gravatar-ondemand-keybinding", [shortcutButton.keybinding]);
     });
 
-    this.shortcutActionRow = new Adw.ActionRow({
+    let shortcutActionRow = new Adw.ActionRow({
       title: "Keyboard Shortcut",
       subtitle: "Shortcut triggers downloading and setting user icon from Gravatar"
     });
-    this.prefGroup.add(this.shortcutActionRow);
+    prefGroup.add(shortcutActionRow);
     
-    this.shortcutActionRow.add_suffix(this.shortcutButton);
-    this.shortcutActionRow.set_activatable_widget(this.shortcutButton);
+    shortcutActionRow.add_suffix(shortcutButton);
+    shortcutActionRow.set_activatable_widget(shortcutButton);
 
-    this.aboutPrefGroup = new Adw.PreferencesGroup({
-      title: "About",
+    let contribution_page = new Adw.PreferencesPage({
+      title: _("Contribute"),
+      icon_name: 'contribute-symbolic',
     });
-    this.page.add(this.aboutPrefGroup);
-    
-    this.aboutActionRow = new Adw.ActionRow({
-      title: 'Extension Information',
-    });
-    this.aboutPrefGroup.add(this.aboutActionRow);
 
-    this.aboutButton = new Gtk.Button({
-      icon_name: "org.gnome.Settings-about-symbolic",
-      valign: Gtk.Align.CENTER,
-      tooltip_text: 'About the Gravatar Extension'
+    window.add(contribution_page);
+
+    let contribute_icon_pref_group = new Adw.PreferencesGroup();
+    let icon_box = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        margin_top: 24,
+        margin_bottom: 24,
+        spacing: 18,
     });
-    this.aboutActionRow.add_suffix(this.aboutButton);
-    this.aboutActionRow.set_activatable_widget(this.aboutButton);
-    this.aboutButton.connect("clicked", (button) => {
-      this.aboutWindow =  new Adw.AboutWindow({
-        website: 'https://github.com/dsheeler/gnome-shell-extensions-gravatar',
-        application_name: "Gravatar",
-        developer_name: "Daniel Sheeler (dsheeler)",
-        version: this.getVersionString(),
-        license: 'The MIT License (MIT)',
-        copyright: 'Copyright (C) 2024 Daniel Sheeler',
-        issue_url: 'https://github.com/dsheeler/gnome-shell-extensions-gravatar/issues',
-        application_icon: 'gravatar-symbolic',
-      });
-      this.aboutWindow.show();
+
+    let icon_image = new Gtk.Image({
+        icon_name: "gravatar",
+        pixel_size: 128,
     });
+
+    let label_box = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        spacing: 6,
+    });
+
+    let label = new Gtk.Label({
+        label: "Gravatar",
+        wrap: true,
+    });
+    let context = label.get_style_context();
+    context.add_class("title-1");
+
+    let another_label = new Gtk.Label({
+        label: this.getVersionString(),
+    });
+
+    let links_pref_group = new Adw.PreferencesGroup();
+    let code_row = new Adw.ActionRow({
+        icon_name: "code-symbolic",
+        title: _("Code (create pull requests, report issues, etc.)")
+    });
+    let github_link = new Gtk.LinkButton({
+        label: "Github",
+        uri: "https://github.com/dsheeler/gnome-shell-extensions-gravatar/",
+    });
+
+    let donate_row = new Adw.ActionRow({
+        title: _("Donate"),
+        icon_name: "support-symbolic",
+    })
+    let donate_link = new Gtk.LinkButton({
+        label: "Liberapay",
+        uri: "https://liberapay.com/dsheeler/donate",
+    });
+
+    let donate_link_paypal = new Gtk.LinkButton({
+        label: "PayPal",
+
+        uri: "https://paypal.me/DanielSheeler?country.x=US&locale.x=en_US",
+    });
+
+    let donate_link_github = new Gtk.LinkButton({
+        label: "Github",
+
+        uri: "https://github.com/sponsors/dsheeler",
+    });
+
+    code_row.add_suffix(github_link);
+    code_row.set_activatable_widget(github_link);
+
+    donate_row.add_suffix(donate_link);
+    donate_row.add_suffix(donate_link_paypal);
+    donate_row.add_suffix(donate_link_github);
+
+    links_pref_group.add(code_row);
+    links_pref_group.add(donate_row);
+
+    label_box.append(label);
+    label_box.append(another_label);
+    icon_box.append(icon_image);
+    icon_box.append(label_box);
+    contribute_icon_pref_group.add(icon_box);
+
+    contribution_page.add(contribute_icon_pref_group);
+    contribution_page.add(links_pref_group)
+
+    window.set_search_enabled(true);
   }
 }
