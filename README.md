@@ -1,5 +1,7 @@
 # Gravatar GNOME Shell Extension
 
+<a href="https://extensions.gnome.org/extension/6922/gravatar/"><img src="https://img.shields.io/badge/Download-extensions.gnome.org-4a86cf.svg?logo=gnome&style=plastic" /></a>
+
 A GNOME Shell extension to synchronize your user icon with Gravatar.
 
 ## Prerequisites
@@ -8,9 +10,13 @@ A GNOME Shell extension to synchronize your user icon with Gravatar.
 * `gnome-shell-extension-prefs` _(optional)_
 
 ## Installation
+
+Easiest way to install the extension is via [extensions.gnome.org](https://extensions.gnome.org/extension/6922/gravatar/), the official Gnome extension platform. Head over there and install with one click by toggling the switch on the site.
+
 If you wish to build and install the extension manually, you will need the following tools:
 * `git`
 * `glib-compile-schemas`
+* `make`
 * `dconf` _(optional)_
 
 The packages which include the above tools may vary between different GNU/Linux distributions. Check your distribution's documentation / package list to find the most suitable packages.
@@ -28,6 +34,11 @@ make
 ```bash
 make uninstall
 ```
+## Usage
+#### Triggering a Download from Gravatar
+Every time the extension is enabled (for example at login), the extension downloads your user icon from Gravatar. When the `email` setting is changed, the extension also performs a download. 
+
+The extension provides a third option to trigger a download which is by pressing a user-defined keybinding. This enables the user to, for example, update their user icon after an update on Gravatar. The prefs widget provides an interface to change the keybinding. The default is `<Ctrl><Super>g`.    
 
 ## Settings
 Settings can be configured from the `gnome-shell-extension-prefs` tool or from the command line via `dconf`. Settings marked with `*` can only be changed by using `dconf`.
