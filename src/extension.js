@@ -180,7 +180,7 @@ export default class GravatarExtension extends Extension {
             if (use_osd) Main.osdWindowManager.show(-1, file_icon, `Installed Gravatar Icon for '${email}'`);
             else this.showNotification('Gravatar Extension', `Installed Icon for ${email}`, file_icon);
           } else {
-            let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error-symbolic');
+            let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
             if (use_osd) Main.osdWindowManager.show(-1, error_icon, `Failed to Download Gravatar Icon for '${email}'`);
             else this.showNotification('Gravatar Extension', `Failed to download ${url}`, error_icon);
             gr_log(`Failed to download ${url}`);
