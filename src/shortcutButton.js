@@ -1,5 +1,6 @@
-// SPDX-FileCopyrightText: Night Theme Switcher Contributors
-// SPDX-License-Identifier: GPL-3.0-or-later
+/*This code is based on code in Night Theme Switcher:
+  https://gitlab.com/rmnvgr/nightthemeswitcher-gnome-shell-extension/-/blob/34aeb19fdc097a8c1be33476ddb49e176188a57e/src/data/ui/ShortcutButton.ui
+  https://gitlab.com/rmnvgr/nightthemeswitcher-gnome-shell-extension/-/blob/34aeb19fdc097a8c1be33476ddb49e176188a57e/src/preferences/ShortcutButton.js*/
 
 import Gdk from 'gi://Gdk';
 import GObject from 'gi://GObject';
