@@ -6,7 +6,7 @@
   },
   "uuid": "gravatar@dsheeler.net",
   "name": "Gravatar",
-  "description": "Synchronize GNOME Shell user icon with Gravatar.",
+  "description": "Synchronize GNOME Shell user icon with Gravatar.\nThis extension is not affiliated, funded, or in any way associated with Automattic and Gravatar.",
   "url": "https://github.com/dsheeler/gnome-shell-extensions-gravatar",
   "settings-schema": "org.gnome.shell.extensions.gravatar",
   "gettext-domain": "gnome-shell-extensions-gravatar",
