@@ -153,7 +153,7 @@ export default class GravatarExtension extends Extension {
       return;
     }
     try {
-      const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=mm`;
+      const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=retro`;
       const request = Soup.Message.new('GET', url);
       const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
       gr_debug(this.settings, `Downloading gravatar icon from ${url}`);
