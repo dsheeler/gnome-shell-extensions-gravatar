@@ -22,7 +22,6 @@ export default class GravatarExtension extends Extension {
     gr_debug(this.settings, 'initializing');
     this.tmpDir = '/tmp';
     this.username = GLib.get_user_name();
-    this.user = AccountsService.UserManager.get_default().get_user(this.username);
     this.notifSource = null;
     this.previousKeybinding = "";
   }
@@ -34,6 +33,7 @@ export default class GravatarExtension extends Extension {
    */
   enable() {
     gr_debug(this.settings, 'enabling');
+    this.user = AccountsService.UserManager.get_default().get_user(this.username);
     this.waitForUser(() => {
       this.emailChangedId = this.settings.connect('changed::email', this.loadIcon.bind(this));
       this.loadIcon();
@@ -47,6 +47,7 @@ export default class GravatarExtension extends Extension {
 
   disable() {
     gr_debug(this.settings, 'disabling');
+    this.user = null;
     this.removeKeybinding();
     if (this.emailChangedId) {
       this.settings.disconnect(this.emailChangedId);
