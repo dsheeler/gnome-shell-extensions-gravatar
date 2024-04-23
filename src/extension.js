@@ -14,7 +14,6 @@ import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import { md5 } from './lib/md5.js'
 import { gr_log, gr_debug } from './utils/logger.js'
-import { setInterval, clearInterval } from './utils/timing.js'
 
 export default class GravatarExtension extends Extension {
   constructor(metadata) {
