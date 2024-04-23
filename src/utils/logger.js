@@ -2,7 +2,7 @@
 
 /* exported log */
 export function gr_log(msg) {
-  log(`[GravaterExtension] ${msg}`);
+  console.log(`[GravaterExtension] ${msg}`);
 }
 
 /* exported debug */
