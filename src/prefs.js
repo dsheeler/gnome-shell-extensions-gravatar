@@ -25,7 +25,7 @@ export default class GravatarPreferences extends ExtensionPreferences {
     window.settings = this.getSettings();
 
     let page = new Adw.PreferencesPage({
-      title: "Settings",
+      title: _("Settings"),
       icon_name: "general-symbolic",
     })
     window.add(page);
@@ -36,7 +36,7 @@ export default class GravatarPreferences extends ExtensionPreferences {
     page.add(prefGroup);
 
     let emailEntryRow = new Adw.EntryRow({
-      title: "Gravatar Email Address",
+      title: _("Gravatar Email Address"),
       show_apply_button: true, 
       text: window.settings.get_string('email'),
     });
@@ -59,8 +59,8 @@ export default class GravatarPreferences extends ExtensionPreferences {
     });
 
     let shortcutActionRow = new Adw.ActionRow({
-      title: "Keyboard Shortcut",
-      subtitle: "Shortcut triggers downloading and setting user icon from Gravatar"
+      title: _("Keyboard Shortcut"),
+      subtitle: _("Shortcut triggers downloading and setting user icon from Gravatar")
     });
     prefGroup.add(shortcutActionRow);
     

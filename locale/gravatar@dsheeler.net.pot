@@ -1,0 +1,55 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the gravatar@dsheeler.net package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: gravatar@dsheeler.net\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-04-24 20:26-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/prefs.js:17
+#, javascript-format
+msgid "Version %d"
+msgstr ""
+
+#: src/prefs.js:28
+msgid "Settings"
+msgstr ""
+
+#: src/prefs.js:34
+msgid "General"
+msgstr ""
+
+#: src/prefs.js:39
+msgid "Gravatar Email Address"
+msgstr ""
+
+#: src/prefs.js:62
+msgid "Keyboard Shortcut"
+msgstr ""
+
+#: src/prefs.js:63
+msgid "Shortcut triggers downloading and setting user icon from Gravatar"
+msgstr ""
+
+#: src/prefs.js:71
+msgid "Contribute"
+msgstr ""
+
+#: src/prefs.js:109
+msgid "Code (create pull requests, report issues, etc.)"
+msgstr ""
+
+#: src/prefs.js:117
+msgid "Donate"
+msgstr ""
