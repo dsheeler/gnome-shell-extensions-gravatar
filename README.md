@@ -53,7 +53,7 @@ dconf write /org/gnome/shell/extensions/gravatar/debug "'<BOOL>'"
 dconf write /org/gnome/shell/extensions/gravatar/email "'<EMAIL>'"
 ```
 
-### Get Avatar Keybinding: _(default: `["<Ctrl><Super>g"]`)_
+#### Download Keybinding: _(default: `["<Ctrl><Super>g"]`)_
 ```bash
 dconf write /org/gnome/shell/extensions/gravatar/gravatar-ondemand-keybinding '["<KEYBINDING_STRING>"]'
 ```
