@@ -3,7 +3,6 @@
 import Gio from 'gi://Gio'
 import AccountsService from 'gi://AccountsService'
 import GLib from 'gi://GLib'
-import St from 'gi://St'
 import Soup from 'gi://Soup'
 import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
@@ -13,13 +12,13 @@ import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 
 import { md5 } from './lib/md5.js'
-import { gr_log, gr_debug } from './utils/logger.js'
+import { GravatarLogger } from './utils/logger.js'
 
 export default class GravatarExtension extends Extension {
   constructor(metadata) {
     super(metadata);
     this.settings = this.getSettings();
-    gr_debug(this.settings, 'initializing');
+    this.logger = null;
     this.tmpDir = '/tmp';
     this.username = GLib.get_user_name();
     this.notifSource = null;
@@ -32,11 +31,12 @@ export default class GravatarExtension extends Extension {
    ***********************************************
    */
   enable() {
-    gr_debug(this.settings, 'enabling');
+    this.logger = new GravatarLogger(this.settings);
+    this.logger.debug('Enabling');
     this.user = AccountsService.UserManager.get_default().get_user(this.username);
     this.waitForUser(() => {
-      this.emailChangedId = this.settings.connect('changed::email', this.loadIcon.bind(this));
       this.loadIcon();
+      this.emailChangedId = this.settings.connect('changed::email', this.loadIcon.bind(this));
       this.keybindingChangedId = this.settings.connect("changed::gravatar-ondemand-keybinding", () => {
         this.removeKeybinding();
         this.addKeybinding();
@@ -46,7 +46,7 @@ export default class GravatarExtension extends Extension {
   }
 
   disable() {
-    gr_debug(this.settings, 'disabling');
+    this.logger.debug('Disabling');
     this.user = null;
     this.removeKeybinding();
     if (this.emailChangedId) {
@@ -68,6 +68,7 @@ export default class GravatarExtension extends Extension {
       this.httpSession.abort();
       this.httpSession = null;
     }
+    this.logger = null;
   }
 
   /*
@@ -77,7 +78,7 @@ export default class GravatarExtension extends Extension {
    */
 
   addKeybinding() {
-    gr_debug(this.settings, "adding keybinding");
+    this.logger.debug("Adding keybinding");
     this.previousKeybinding = this.settings.get_strv("gravatar-ondemand-keybinding")[0];
     if (!this.previousKeybinding) {
       return;
@@ -88,16 +89,14 @@ export default class GravatarExtension extends Extension {
       Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
       Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
       () => {
-        gr_debug(this.settings, "ondemand keybinding pressed; loading icon");
-        this.loadIcon({
-          use_osd: true
-        });
+        this.logger.debug("On-demand keybinding pressed; loading icon");
+        this.loadIcon();
       }
     )
   }
 
   removeKeybinding() {
-    gr_debug(this.settings, `remove keybinding ${this.previousKeybinding}`);
+    this.logger.debug(`Remove keybinding ${this.previousKeybinding}`);
     if (this.previousKeybinding) {
       Main.wm.removeKeybinding('gravatar-ondemand-keybinding');
     }
@@ -110,12 +109,12 @@ export default class GravatarExtension extends Extension {
       cb();
       return;
     }
-    gr_debug(this.settings, 'Waiting for user to initialize...');
+    this.logger.debug('Waiting for user to initialize...');
     let loopCount = 0;
     this.userLoop = setInterval(() => {
       loopCount += 1;
       if (this.user.isLoaded) {
-        gr_debug(this.settings, 'User initialized');
+        this.logger.debug('User initialized');
         clearInterval(this.userLoop);
         this.userLoop = null;
         return cb();
@@ -123,7 +122,7 @@ export default class GravatarExtension extends Extension {
       if (loopCount >= 30) {
         clearInterval(this.userLoop);
         this.userLoop = null;
-        gr_log('Timeout waiting for user to initialize');
+        this.logger.error('Timeout waiting for user to initialize');
       }
       return null;
     }, 1000);
@@ -136,7 +135,7 @@ export default class GravatarExtension extends Extension {
 
   getHash() {
     const email = this.settings.get_string('email').toLowerCase();
-    gr_debug(this.settings, `Hashing "${email}"`);
+    this.logger.debug(`Hashing "${email}"`);
     return md5(email);
   }
 
@@ -146,7 +145,7 @@ export default class GravatarExtension extends Extension {
   }
 
   /* Download From Gravatar */
-  loadIcon(use_osd=false) {
+  loadIcon() {
     const email = this.settings.get_string('email').toLowerCase();
     const hash = this.getHash();
     if (hash === null) {
@@ -156,16 +155,15 @@ export default class GravatarExtension extends Extension {
       const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=retro`;
       const request = Soup.Message.new('GET', url);
       const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
-      gr_debug(this.settings, `Downloading gravatar icon from ${url}`);
-      gr_debug(this.settings, `Saving to ${icon.get_path()}`);
-
+     
       // initialize session
       if (!this.httpSession) {
-        gr_debug(this.settings, 'Creating new http session');
+        this.logger.debug('Creating new http session');
         this.httpSession = new Soup.Session();
       }
       this.httpSession.abort();
-
+      this.logger.debug(`Downloading gravatar icon from ${url}`);
+      this.logger.debug(`Saving to ${icon.get_path()}`);
       const fstream = icon.replace(null, false, Gio.FileCreateFlags.NONE, null);
       this.httpSession.send_and_splice_async(
         request, 
@@ -177,33 +175,32 @@ export default class GravatarExtension extends Extension {
           if (session.send_and_splice_finish(result) > -1) {
             this.setIcon(icon.get_path());
             let file_icon = Gio.FileIcon.new(icon);
-            if (use_osd) Main.osdWindowManager.show(-1, file_icon, `Installed Gravatar Icon for '${email}'`);
-            else this.showNotification('Gravatar Extension', `Installed Icon for ${email}`, file_icon);
+            this.showNotification(`Installed Icon`,  `${email}`, file_icon);
           } else {
             let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
-            if (use_osd) Main.osdWindowManager.show(-1, error_icon, `Failed to Download Gravatar Icon for '${email}'`);
-            else this.showNotification('Gravatar Extension', `Failed to download ${url}`, error_icon);
-            gr_log(`Failed to download ${url}`);
+            this.showNotification('Gravatar Extension', `Failed to download ${url}`, error_icon);
+            this.logger.error(`Failed to download ${url}`);
           }
-          gr_debug(this.settings, `Deleting ${icon.get_path()}`);
+          this.logger.debug(`Deleting ${icon.get_path()}`);
           icon.delete(null);
         });
     } catch (e) {
-      gr_log(e.message);
+      this.logger.error(e.message);
     }
   }
 
   showNotification(title, message, gicon) {
     if (this.notifSource == null) {
       // We have to prepare this only once
-      this.notifSource = MessageTray.getSystemSource();
+      this.notifSource = new MessageTray.Source({
+        title: this.metadata.name.toString(),
+        icon: Gio.icon_new_for_string(GLib.build_filenamev([this.path, 'ui', 'icons', 'hicolor', 'scalable', 'actions', 'gravatar.svg'])),
+      });
       
       // Take care of not leaving unneeded sources
       this.notifSource.connect('destroy', ()=>{this.notifSource = null;});
+      Main.messageTray.add(this.notifSource);
     }
-    this.notifSource.createIcon = function() {
-      return new St.Icon({ gicon: gicon });
-    };
 
     let notification = null;
     // We do not want to have multiple notifications stacked

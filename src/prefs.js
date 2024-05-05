@@ -30,9 +30,7 @@ export default class GravatarPreferences extends ExtensionPreferences {
     })
     window.add(page);
 
-    let prefGroup = new Adw.PreferencesGroup({
-      title: _("General"),
-    });
+    let prefGroup = new Adw.PreferencesGroup();
     page.add(prefGroup);
 
     let emailEntryRow = new Adw.EntryRow({
