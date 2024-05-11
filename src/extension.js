@@ -152,7 +152,7 @@ export default class GravatarExtension extends Extension {
       return;
     }
     try {
-      const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=retro`;
+      const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=404`;
       const request = Soup.Message.new('GET', url);
       const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
      
@@ -172,17 +172,19 @@ export default class GravatarExtension extends Extension {
         0,
         null,
         (session, result, data) => {
-          if (session.send_and_splice_finish(result) > -1) {
-            this.setIcon(icon.get_path());
-            let file_icon = Gio.FileIcon.new(icon);
-            this.showNotification(`Installed Icon`,  `${email}`, file_icon);
-          } else {
-            let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
-            this.showNotification('Gravatar Extension', `Failed to download ${url}`, error_icon);
-            this.logger.error(`Failed to download ${url}`);
-          }
-          this.logger.debug(`Deleting ${icon.get_path()}`);
-          icon.delete(null);
+            if (session.send_and_splice_finish(result) > -1) {
+                if (session.get_async_result_message(result).get_status() !== Soup.Status.NOT_FOUND) {
+                    this.setIcon(icon.get_path());
+                    let file_icon = Gio.FileIcon.new(icon);
+                    this.showNotification(`Installed Icon`,  `${email}`, file_icon);
+                } else {
+                    let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
+                    this.showNotification('Gravatar Extension', `Failed to download ${email}`, error_icon);
+                    this.logger.error(`Failed to download ${email}`);
+                }
+            }
+            this.logger.debug(`Deleting ${icon.get_path()}`);
+            icon.delete(null);
         });
     } catch (e) {
       this.logger.error(e.message);
