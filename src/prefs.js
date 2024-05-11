@@ -4,6 +4,7 @@ import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import Gdk from 'gi://Gdk';
+import Gio from 'gi://Gio';
 
 import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js'
 import { OnDemandShortcutButton } from './shortcutButton.js'
@@ -40,6 +41,7 @@ export default class GravatarPreferences extends ExtensionPreferences {
     });
     prefGroup.add(emailEntryRow);
     
+    window.settings.bind('email', emailEntryRow, 'text', Gio.SettingsBindFlags.GET);
     emailEntryRow.connect("apply", () => {
       window.settings.set_string('email', emailEntryRow.get_text());
     });
@@ -65,6 +67,12 @@ export default class GravatarPreferences extends ExtensionPreferences {
     shortcutActionRow.add_suffix(shortcutButton);
     shortcutActionRow.set_activatable_widget(shortcutButton);
 
+     let debug_row = new Adw.SwitchRow({
+        title: _("Enable Debug Logging"),
+    });
+    window.settings.bind('debug', debug_row, 'active', Gio.SettingsBindFlags.DEFAULT);
+
+    prefGroup.add(debug_row);
     let contribution_page = new Adw.PreferencesPage({
       title: _("Contribute"),
       icon_name: 'contribute-symbolic',
