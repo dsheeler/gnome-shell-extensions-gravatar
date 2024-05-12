@@ -43,7 +43,7 @@ The extension provides a third option to trigger a download which is by pressing
 ## Settings
 Settings can be configured from the `gnome-shell-extension-prefs` tool or from the command line via `dconf`. Settings marked with `*` can only be changed by using `dconf`.
 
-#### *Debug Mode: _(default: `false`)_
+#### Debug Mode: _(default: `false`)_
 ```bash
 dconf write /org/gnome/shell/extensions/gravatar/debug "'<BOOL>'"
 ```
