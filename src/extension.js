@@ -192,6 +192,8 @@ export default class GravatarExtension extends Extension {
         }
         
         showNotification(title, message, gicon) {
+            if (!this.settings.get_boolean('notifications')) return;
+
             if (this.notifSource == null) {
                 // We have to prepare this only once
                 this.notifSource = new MessageTray.Source({
