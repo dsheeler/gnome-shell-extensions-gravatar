@@ -66,7 +66,7 @@ dconf write /org/gnome/shell/extensions/gravatar/icon-size <SIZE>
 ```
 
 
-#### Notification on update
+#### Desktop Notification on Update: _(default: `false`)_
 
 ```bash
 dconf write /org/gnome/shell/extensions/gravatar/notifications "'<BOOL>'"
