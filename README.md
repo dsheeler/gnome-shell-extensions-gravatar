@@ -65,6 +65,13 @@ dconf write /org/gnome/shell/extensions/gravatar/gravatar-ondemand-keybinding '[
 dconf write /org/gnome/shell/extensions/gravatar/icon-size <SIZE>
 ```
 
+
+#### Notification on update
+
+```bash
+dconf write /org/gnome/shell/extensions/gravatar/notifications "'<BOOL>'"
+```
+
 ## Bug Reporting
 Bugs should be reported via the [GitHub Issue Tracker](https://github.com/dsheeler/gnome-shell-extensions-gravatar/issues)
 
