@@ -39,7 +39,7 @@ SCHEMA_FILE = org.gnome.shell.extensions.gravatar.gschema.xml
 .PHONY: $(POT_FILE) build
 #.PHONY: build
 
-all: build schema install
+all: build schema mergepo install
 
 build:
 	mkdir -p build
@@ -50,6 +50,7 @@ build:
 		--extra-source ../metadata.json \
 		--extra-source ./shortcutButton.js \
 		--schema ./schemas/org.gnome.shell.extensions.gravatar.gschema.xml \
+		--podir ../locale/ \
 		-o ../build/
 
 $(POT_FILE): $(SRC_DIR)/*.js
