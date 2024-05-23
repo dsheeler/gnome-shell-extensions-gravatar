@@ -5,8 +5,6 @@ on:
     branches: [ 'main' ]
   pull_request:
     branches: [ 'main' ]
-  schedule:
-    - cron: '33 14 * * 5'
 
 jobs:
   eslint:
@@ -24,16 +22,7 @@ jobs:
       - name: Install
         run: |
           npm install eslint@^8.0.0
-          npm install @microsoft/eslint-formatter-sarif@2.1.7
 
       - name: Lint
         run: npx eslint .
-          --format @microsoft/eslint-formatter-sarif
-          --output-file eslint-results.sarif
         continue-on-error: true
-
-      - name: Report
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: eslint-results.sarif
-          wait-for-processing: true
