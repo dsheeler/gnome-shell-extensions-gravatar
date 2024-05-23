@@ -39,7 +39,7 @@ SCHEMA_FILE = org.gnome.shell.extensions.gravatar.gschema.xml
 .PHONY: $(POT_FILE) build
 #.PHONY: build
 
-all: build schema mergepo install
+all: mergepo build schema install
 
 build:
 	mkdir -p build
