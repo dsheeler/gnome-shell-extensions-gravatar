@@ -13,8 +13,8 @@ export const GravatarLogger = new GObject.registerClass({
         ),
     }
 }, class GravatarLogger extends GObject.Object {
-    _init(settings) {
-        super._init();
+    constructor(settings) {
+        super();
         this.settings = settings;
         this.settings.bind('debug', this, 'debugging_on',
         Gio.SettingsBindFlags.DEFAULT);
@@ -33,7 +33,7 @@ export const GravatarLogger = new GObject.registerClass({
             console.log(`[DEBUG  ]${this.prepareMessage(msg)}`);
         }
     }
-    
+
     prepareMessage(msg) {
         return `[Gravatar] ${msg}`;
     }

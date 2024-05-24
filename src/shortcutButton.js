@@ -29,11 +29,11 @@ export class OnDemandShortcutButton extends Gtk.Stack {
         this.settings = settings;
         this.dialog = null;
         this.valign = Gtk.Align.CENTER;
-        
+
         this.chooseButton = new Gtk.Button({
             label: "Choose...",
         });
-      
+
         this.editBox = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
         });
@@ -42,7 +42,7 @@ export class OnDemandShortcutButton extends Gtk.Stack {
         this.changeButton = new Gtk.Button({
             tooltip_text: "Change keyboard shortcut",
         })
-      
+
         this.clearButton = new Gtk.Button({
             label: "Clear",
         })
@@ -54,7 +54,7 @@ export class OnDemandShortcutButton extends Gtk.Stack {
         this.shortcutLabel = new Gtk.ShortcutLabel({
             accelerator: this.keybinding,
         });
-        
+
         //this.settings.connect("changed::gravatar-ondemand-keybinding", this.shortcutLabel, "accelerator", Gio.SettingsBindFlags.DEFAULT);
         this.bind_property("keybinding", this.shortcutLabel, "accelerator", Gio.SettingsBindFlags.DEFAULT);
         this.changeButton.set_child(this.shortcutLabel);
@@ -74,14 +74,14 @@ export class OnDemandShortcutButton extends Gtk.Stack {
     }
 
     activate() {
-        if (this.keybinding) 
+        if (this.keybinding)
             return this.editBox.get_first_child().activate();
-        else 
+        else
             return this.chooseButton.activate();
     }
 
     openDialog() {
-        if (this.dialog == null) {
+        if (this.dialog === null) {
             this.statusPage = new Adw.StatusPage({
                 title: "Press your keyboard shortcut...",
                 icon_name: "preferences-desktop-keyboard-shortcuts-symbolic",
@@ -102,7 +102,7 @@ export class OnDemandShortcutButton extends Gtk.Stack {
                 hexpand: true,
                 child: this.overlay,
             })
-            
+
             this.dialog = new Adw.Window({
                 modal: true,
                 default_width: 440,
@@ -114,13 +114,13 @@ export class OnDemandShortcutButton extends Gtk.Stack {
             });
             this.eventControllerKey.connect("key-pressed", this.onKeyPressed.bind(this))
             this.dialog.add_controller(this.eventControllerKey);
-            
+
         }
         this.dialog.transient_for = this.get_root();
         this.dialog.present();
     }
 
-    onKeybindingChanged(button) {
+    onKeybindingChanged() {
         this.visible_child = this.keybinding ? this.editBox : this.chooseButton;
     }
 
@@ -195,6 +195,7 @@ function isKeyvalForbidden(keyval) {
  * representing the key combo.
  * @returns {boolean} `true` if the key combo is a valid binding.
  */
+// eslint-disable-next-line complexity
 function isBindingValid({ mask, keycode, keyval }) {
     if ((mask === 0 || mask === Gdk.SHIFT_MASK) && keycode !== 0) {
         if (

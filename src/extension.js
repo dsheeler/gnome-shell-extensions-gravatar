@@ -24,7 +24,7 @@ export default class GravatarExtension extends Extension {
         this.notifSource = null;
         this.previousKeybinding = "";
     }
-    
+
     /*
     ***********************************************
     * Public Methods                              *
@@ -44,7 +44,7 @@ export default class GravatarExtension extends Extension {
             this.addKeybinding();
         });
     }
-    
+
     disable() {
         this.logger.debug('Disabling');
         this.user = null;
@@ -53,30 +53,30 @@ export default class GravatarExtension extends Extension {
             this.settings.disconnect(this.emailChangedId);
             this.emailChangedId = null;
         }
-        
+
         if (this.keybindingChangedId) {
             this.settings.disconnect(this.keybindingChangedId);
             this.keybindingChangedId = null;
         }
-        
+
         if (this.userLoop) {
             clearInterval(this.userLoop);
             this.userLoop = null;
         }
-        
+
         if (this.httpSession) {
             this.httpSession.abort();
             this.httpSession = null;
         }
         this.logger = null;
     }
-    
+
     /*
     ***********************************************
     * Private Methods                             *
     ***********************************************
     */
-    
+
     addKeybinding() {
         this.logger.debug("Adding keybinding");
         this.previousKeybinding = this.settings.get_strv("gravatar-ondemand-keybinding")[0];
@@ -94,14 +94,14 @@ export default class GravatarExtension extends Extension {
             }
         )
     }
-    
+
     removeKeybinding() {
         this.logger.debug(`Remove keybinding ${this.previousKeybinding}`);
         if (this.previousKeybinding) {
             Main.wm.removeKeybinding('gravatar-ondemand-keybinding');
         }
     }
-    
+
     waitForUser(cb) {
         // This fixes an issue where sometimes this.user is not
         // initialized when the extension loads
@@ -127,23 +127,23 @@ export default class GravatarExtension extends Extension {
             return null;
         }, 1000);
     }
-    
+
     /* Settings */
     getIconSize() {
         return this.settings.get_int('icon-size');
     }
-    
+
     getHash() {
         const email = this.settings.get_string('email').toLowerCase();
         this.logger.debug(`Hashing "${email}"`);
         return md5(email);
     }
-    
+
     /* Set Icon */
     setIcon(icon) {
         this.user.set_icon_file(icon);
     }
-    
+
     /* Download From Gravatar */
     loadIcon() {
         const email = this.settings.get_string('email').toLowerCase();
@@ -155,7 +155,7 @@ export default class GravatarExtension extends Extension {
             const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=404`;
             const request = Soup.Message.new('GET', url);
             const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
-            
+
             // initialize session
             if (!this.httpSession) {
                 this.logger.debug('Creating new http session');
@@ -166,12 +166,12 @@ export default class GravatarExtension extends Extension {
             this.logger.debug(`Saving to ${icon.get_path()}`);
             const fstream = icon.replace(null, false, Gio.FileCreateFlags.NONE, null);
             this.httpSession.send_and_splice_async(
-                request, 
-                fstream, 
+                request,
+                fstream,
                 Gio.OutputStreamSpliceFlags.CLOSE_TARGET,
                 0,
                 null,
-                (session, result, data) => {
+                (session, result) => {
                     if (session.send_and_splice_finish(result) > -1) {
                         if (session.get_async_result_message(result).get_status() !== Soup.Status.NOT_FOUND) {
                             this.setIcon(icon.get_path());
@@ -190,29 +190,29 @@ export default class GravatarExtension extends Extension {
                 this.logger.error(e.message);
             }
         }
-        
+
         showNotification(title, message, gicon) {
             if (!this.settings.get_boolean('notifications')) return;
 
-            if (this.notifSource == null) {
+            if (this.notifSource === null) {
                 // We have to prepare this only once
                 this.notifSource = new MessageTray.Source({
                     title: this.metadata.name.toString(),
                     icon: Gio.icon_new_for_string(GLib.build_filenamev([this.path, 'ui', 'icons', 'hicolor', 'scalable', 'actions', 'gravatar.svg'])),
                 });
-                
+
                 // Take care of not leaving unneeded sources
                 this.notifSource.connect('destroy', ()=>{this.notifSource = null;});
                 Main.messageTray.add(this.notifSource);
             }
-            
+
             let notification = null;
             // We do not want to have multiple notifications stacked
             // instead we will update previous
-            if (this.notifSource.notifications.length == 0) {
+            if (this.notifSource.notifications.length === 0) {
                 notification = new MessageTray.Notification({
-                    source: this.notifSource, 
-                    title: title, 
+                    source: this.notifSource,
+                    title: title,
                     body: message,
                     gicon: gicon
                 });
@@ -227,4 +227,3 @@ export default class GravatarExtension extends Extension {
             this.notifSource.addNotification(notification);
         }
     }
-    
