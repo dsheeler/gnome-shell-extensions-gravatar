@@ -152,7 +152,18 @@ export default class GravatarExtension extends Extension {
             return;
         }
         try {
-            const url = `http://www.gravatar.com/avatar/${hash}?s=${this.getIconSize()}&d=404`;
+            let baseUrl = null;
+            const service = this.settings.get_string('service');
+            if (service.toLowerCase() === "gravatar") {
+                baseUrl = "gravatar.com";
+            } else if (service.toLowerCase() === "libravatar") {
+                baseUrl = "seccdn.libravatar.org";
+            } else {
+                throw RangeError(`'service' setting '${service}' is invalid`);
+            }
+
+            const url = `http://${baseUrl}/avatar/${hash}?s=${this.getIconSize()}&d=404`;
+
             const request = Soup.Message.new('GET', url);
             const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
 
@@ -176,11 +187,11 @@ export default class GravatarExtension extends Extension {
                         if (session.get_async_result_message(result).get_status() !== Soup.Status.NOT_FOUND) {
                             this.setIcon(icon.get_path());
                             let file_icon = Gio.FileIcon.new(icon);
-                            this.showNotification(`Installed Icon`,  `${email}`, file_icon);
+                            this.showNotification(`Installed Icon from ${service}`,  `${email}`, file_icon);
                         } else {
                             let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
-                            this.showNotification('Gravatar Extension', `Failed to download ${email}`, error_icon);
-                            this.logger.error(`Failed to download ${email}`);
+                            this.showNotification('Gravatar Extension', `Failed to download ${email} from ${service}`, error_icon);
+                            this.logger.error(`Failed to download ${email} from ${service}`);
                         }
                     }
                     this.logger.debug(`Deleting ${icon.get_path()}`);

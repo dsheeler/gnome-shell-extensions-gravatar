@@ -14,7 +14,7 @@
         <key name="email" type="s">
             <default>""</default>
             <summary>Email</summary>
-            <description>Your Gravatar email address.</description>
+            <description>Your email address.</description>
         </key>
         <key name="gravatar-ondemand-keybinding" type="as">
             <default><![CDATA[['<Ctrl><Super>g']]]></default>
@@ -24,7 +24,11 @@
         <key name="icon-size" type="i">
             <default>192</default>
             <summary>Icon Size</summary>
-            <description>Size of icon to download from Gravatar.</description>
+            <description>Size of icon to download.</description>
+        </key>
+        <key name="service" type="s">
+            <default>"gravatar"</default>
+            <summary>Avatar Service</summary>
         </key>
     </schema>
 </schemalist>
