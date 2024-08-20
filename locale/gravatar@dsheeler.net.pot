@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gravatar@dsheeler.net\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-16 20:51-0500\n"
+"POT-Creation-Date: 2024-08-19 19:28-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,43 +17,51 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/prefs.js:18
+#: src/prefs.js:15
+msgid "Reset to default value"
+msgstr ""
+
+#: src/prefs.js:84
 #, javascript-format
 msgid "Version %d"
 msgstr ""
 
-#: src/prefs.js:29
+#: src/prefs.js:95
 msgid "Settings"
 msgstr ""
 
-#: src/prefs.js:38
-msgid "Gravatar Email Address"
+#: src/prefs.js:104
+msgid "Avatar Service"
 msgstr ""
 
-#: src/prefs.js:62
+#: src/prefs.js:107
+msgid "Email Address"
+msgstr ""
+
+#: src/prefs.js:131
 msgid "Keyboard Shortcut"
 msgstr ""
 
-#: src/prefs.js:63
-msgid "Shortcut triggers downloading and setting user icon from Gravatar"
+#: src/prefs.js:132
+msgid "Shortcut triggers downloading and setting user icon from avatar service"
 msgstr ""
 
-#: src/prefs.js:71
+#: src/prefs.js:140
 msgid "Enable Debug Logging"
 msgstr ""
 
-#: src/prefs.js:76
+#: src/prefs.js:145
 msgid "Enable Desktop Notifications"
 msgstr ""
 
-#: src/prefs.js:84
+#: src/prefs.js:153
 msgid "Contribute"
 msgstr ""
 
-#: src/prefs.js:122
+#: src/prefs.js:191
 msgid "Code (create pull requests, report issues, etc.)"
 msgstr ""
 
-#: src/prefs.js:130
+#: src/prefs.js:199
 msgid "Donate"
 msgstr ""
