@@ -252,8 +252,6 @@ export default class GravatarPreferences extends ExtensionPreferences {
                 window.settings.set_double("prefs-default-width", currentWidth);
                 window.settings.set_double("prefs-default-height", currentHeight);
             }
-            window.destroy();
         });
-
     }
 }
