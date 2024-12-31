@@ -21,20 +21,20 @@ export const GravatarLogger = new GObject.registerClass({
     }
 
     log(msg) {
-        console.log(`[LOG    ]${this.prepareMessage(msg)}`);
+        console.log(`${this.prepareMessage('[LOG    ]' + msg)}`);
     }
 
     error(msg) {
-        console.log(`[ERROR  ]${this.prepareMessage(msg)}`)
+        console.log(`${this.prepareMessage('[ERROR  ]' + msg)}`)
     }
 
     debug(msg) {
         if (this.debugging_on) {
-            console.log(`[DEBUG  ]${this.prepareMessage(msg)}`);
+            console.log(`${this.prepareMessage('[DEBUG]' + msg)}`);
         }
     }
 
     prepareMessage(msg) {
-        return `[Gravatar] ${msg}`;
+        return `[Gravatar]${msg}`;
     }
 });
