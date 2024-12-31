@@ -37,6 +37,7 @@ export default class GravatarExtension extends Extension {
         this.waitForUser(() => {
             this.loadIcon();
             this.emailChangedId = this.settings.connect('changed::email', this.loadIcon.bind(this));
+            this.serviceChangedId = this.settings.connect('changed::service', this.loadIcon.bind(this));
             this.keybindingChangedId = this.settings.connect("changed::gravatar-ondemand-keybinding", () => {
                 this.removeKeybinding();
                 this.addKeybinding();
@@ -52,6 +53,11 @@ export default class GravatarExtension extends Extension {
         if (this.emailChangedId) {
             this.settings.disconnect(this.emailChangedId);
             this.emailChangedId = null;
+        }
+
+        if (this.serviceChangedId) {
+            this.settings.disconnect(this.serviceChangedId);
+            this.serviceChangedId = null;
         }
 
         if (this.keybindingChangedId) {
