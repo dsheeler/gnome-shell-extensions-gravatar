@@ -190,14 +190,17 @@ export default class GravatarExtension extends Extension {
                 null,
                 (session, result) => {
                     if (session.send_and_splice_finish(result) > -1) {
+                        const upperCaseService = service.toLowerCase().replace(/^\w/, (match,  _offset, _string) => {
+                            return match.toUpperCase();
+                        });
                         if (session.get_async_result_message(result).get_status() !== Soup.Status.NOT_FOUND) {
                             this.setIcon(icon.get_path());
                             let file_icon = Gio.FileIcon.new(icon);
-                            this.showNotification(`Installed Icon from ${service}`,  `${email}`, file_icon);
+                            this.showNotification(`Installed Icon from ${upperCaseService}`,  `${email}`, file_icon);
                         } else {
                             let error_icon = Gio.ThemedIcon.new_with_default_fallbacks('network-error');
-                            this.showNotification('Gravatar Extension', `Failed to download ${email} from ${service}`, error_icon);
-                            this.logger.error(`Failed to download ${email} from ${service}`);
+                            this.showNotification('Gravatar Extension', `Failed to download ${email} from ${upperCaseService}`, error_icon);
+                            this.logger.error(`Failed to download ${email} from ${upperCaseService}`);
                         }
                     }
                     this.logger.debug(`Deleting ${icon.get_path()}`);
