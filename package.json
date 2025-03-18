@@ -1,6 +1,6 @@
 {
   "name": "gnome-shell-extensions-gravatar",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Synchronize user icon with Gravatar",
   "main": "index.js",
   "directories": {
