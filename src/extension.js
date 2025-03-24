@@ -176,16 +176,16 @@ export default class GravatarExtension extends Extension {
             const servicesList = resolution.lookup_service_finish(result)
             if (servicesList) {
                 const srv = servicesList[0];
-                const baseUrl = "https://"+ srv.get_hostname() + (srv.get_port() != "443" ? ":" + srv.get_port() : "");
+                const baseUrl = "https://"+ srv.get_hostname() + (srv.get_port() !== "443" ? ":" + srv.get_port() : "");
                 this.logger.debug("Base URL resolved to " + baseUrl + " from DNS");
                 this.performLoad(baseUrl);
                 return;
             }
-            Gio.Resolver.get_default().lookup_service_async("avatars", "tcp", domain, null, (resolution, result) => {
-                const servicesList = resolution.lookup_service_finish(result)
-                if (servicesList) {
-                    const srv = servicesList[0];
-                    const baseUrl = "http://" + srv.get_hostname() + (srv.get_port() != "80" ? ":" + srv.get_port() : "");
+            Gio.Resolver.get_default().lookup_service_async("avatars", "tcp", domain, null, (resolutionInner, resultInner) => {
+                const servicesListInner = resolutionInner.lookup_service_finish(resultInner)
+                if (servicesListInner) {
+                    const srv = servicesListInner[0];
+                    const baseUrl = "http://" + srv.get_hostname() + (srv.get_port() !== "80" ? ":" + srv.get_port() : "");
                     this.logger.debug("Base URL resolved to " + baseUrl + " from DNS");
                     this.performLoad(baseUrl);
                     return;
