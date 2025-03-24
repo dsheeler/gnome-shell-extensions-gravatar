@@ -10,5 +10,5 @@
   "url": "https://github.com/dsheeler/gnome-shell-extensions-gravatar",
   "settings-schema": "org.gnome.shell.extensions.gravatar",
   "gettext-domain": "gnome-shell-extensions-gravatar",
-  "shell-version": ["47"]
+  "shell-version": ["48"]
 }
