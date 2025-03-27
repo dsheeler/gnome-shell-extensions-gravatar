@@ -139,8 +139,7 @@ export default class GravatarExtension extends Extension {
         return this.settings.get_int('icon-size');
     }
 
-    getHash() {
-        const email = this.settings.get_string('email').toLowerCase();
+    getHash(email) {
         this.logger.debug(`Hashing "${email}"`);
         return md5(email);
     }
@@ -153,23 +152,62 @@ export default class GravatarExtension extends Extension {
     /* Download From Gravatar */
     loadIcon() {
         const email = this.settings.get_string('email').toLowerCase();
-        const hash = this.getHash();
-        if (hash === null) {
+        if (this.getHash(email) === null) {
             return;
         }
         try {
-            let baseUrl = null;
             const service = this.settings.get_string('service');
             if (service.toLowerCase() === "gravatar") {
-                baseUrl = "gravatar.com";
+                this.performLoad(service, "https://gravatar.com");
             } else if (service.toLowerCase() === "libravatar") {
-                baseUrl = "seccdn.libravatar.org";
+                const domain = email.split("@", 2)[1]
+                this.useBaseUrlFromDns(domain);
             } else {
                 throw RangeError(`'service' setting '${service}' is invalid`);
             }
+        } catch (e) {
+            this.logger.error(e.message);
+        }
+    }
 
-            const url = `http://${baseUrl}/avatar/${hash}?s=${this.getIconSize()}&d=404`;
+    /* Lookup an avatar SRV record for the given domain */
+    useBaseUrlFromDns(domain) {
+        Gio.Resolver.get_default().lookup_service_async("avatars-sec", "tcp", domain, null, (resolution, result) => {
+            let servicesList
+            try {
+                servicesList = resolution.lookup_service_finish(result)
+            } catch(ignore) {}
+            if (servicesList) {
+                const srv = servicesList[0];
+                const baseUrl = "https://"+ srv.get_hostname() + (srv.get_port() != "443" ? ":" + srv.get_port() : "");
+                this.logger.debug("Base URL resolved to " + baseUrl + " from DNS");
+                this.performLoad(baseUrl);
+                return;
+            }
+            Gio.Resolver.get_default().lookup_service_async("avatars", "tcp", domain, null, (resolution, result) => {
+                try {
+                    servicesList = resolution.lookup_service_finish(result)
+                } catch(ignore) {}
+                if (servicesList) {
+                    const srv = servicesList[0];
+                    const baseUrl = "http://" + srv.get_hostname() + (srv.get_port() != "80" ? ":" + srv.get_port() : "");
+                    this.logger.debug("Base URL resolved to " + baseUrl + " from DNS");
+                    this.performLoad(baseUrl);
+                    return;
+                }
+                this.logger.debug("No DNS records found. Using default: https://seccdn.libravatar.org");
+                this.performLoad("https://seccdn.libravatar.org");
+            });
+        });
+    }
 
+    performLoad(baseUrl) {
+        const service = this.settings.get_string('service');
+        const email = this.settings.get_string('email').toLowerCase();
+        const hash = this.getHash(email);
+        const url = `${baseUrl}/avatar/${hash}?s=${this.getIconSize()}&d=404`;
+
+        try {
             const request = Soup.Message.new('GET', url);
             const icon = Gio.file_new_for_path(`${this.tmpDir}/${Date.now()}_${hash}`);
 
@@ -214,6 +252,7 @@ export default class GravatarExtension extends Extension {
         showNotification(title, message, gicon) {
             if (!this.settings.get_boolean('notifications')) return;
 
+            this.logger.log(title + ": " + message)
             if (this.notifSource === null) {
                 // We have to prepare this only once
                 this.notifSource = new MessageTray.Source({
