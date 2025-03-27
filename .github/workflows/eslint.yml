@@ -25,4 +25,4 @@ jobs:
 
       - name: Lint
         run: npx eslint .
-        continue-on-error: true
+        continue-on-error: false
