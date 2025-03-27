@@ -173,7 +173,12 @@ export default class GravatarExtension extends Extension {
     /* Lookup an avatar SRV record for the given domain */
     useBaseUrlFromDns(domain) {
         Gio.Resolver.get_default().lookup_service_async("avatars-sec", "tcp", domain, null, (resolution, result) => {
-            const servicesList = resolution.lookup_service_finish(result)
+            let servicesList;
+            try {
+                servicesList = resolution.lookup_service_finish(result)
+            } catch (ignore) {
+                this.logger.debug("Lookup avatars-sec failed");
+            }
             if (servicesList) {
                 const srv = servicesList[0];
                 const baseUrl = "https://"+ srv.get_hostname() + (srv.get_port() !== "443" ? ":" + srv.get_port() : "");
@@ -182,9 +187,13 @@ export default class GravatarExtension extends Extension {
                 return;
             }
             Gio.Resolver.get_default().lookup_service_async("avatars", "tcp", domain, null, (resolutionInner, resultInner) => {
-                const servicesListInner = resolutionInner.lookup_service_finish(resultInner)
-                if (servicesListInner) {
-                    const srv = servicesListInner[0];
+                try {
+                    servicesList = resolutionInner.lookup_service_finish(resultInner)
+                } catch (ignore) {
+                    this.logger.debug("Lookup avatars failed");
+                }
+                if (servicesList) {
+                    const srv = servicesList[0];
                     const baseUrl = "http://" + srv.get_hostname() + (srv.get_port() !== "80" ? ":" + srv.get_port() : "");
                     this.logger.debug("Base URL resolved to " + baseUrl + " from DNS");
                     this.performLoad(baseUrl);
