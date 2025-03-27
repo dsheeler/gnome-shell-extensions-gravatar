@@ -158,7 +158,7 @@ export default class GravatarExtension extends Extension {
         try {
             const service = this.settings.get_string('service');
             if (service.toLowerCase() === "gravatar") {
-                this.performLoad(service, "https://gravatar.com");
+                this.performLoad("https://gravatar.com");
             } else if (service.toLowerCase() === "libravatar") {
                 const domain = email.split("@", 2)[1]
                 this.useBaseUrlFromDns(domain);
